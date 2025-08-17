@@ -1,0 +1,102 @@
+import React from "react";  
+import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Colors, Radius, Spacing } from '../theme';
+
+type DateRangeFilterProps = {
+    startDate: string;
+    setStartDate: (text: string) => void;
+    endDate: string;
+    setEndDate: (text: string) => void;
+};
+
+export default function DateRangeFilter({ startDate, setStartDate, endDate, setEndDate }: DateRangeFilterProps) {
+    const [showStartPicker, setShowStartPicker] = React.useState(false);
+    const [showEndPicker, setShowEndPicker] = React.useState(false);
+
+    const handleStartChange = (_: any, selectedDate?: Date) => {
+        setShowStartPicker(false);
+        if (selectedDate) {
+            setStartDate(selectedDate.toISOString().split('T')[0]); // Format to YYYY-MM-DD
+        }
+    };
+
+    const handleEndChange = (_: any, selectedDate?: Date) => {
+        setShowEndPicker(false);
+        if (selectedDate) {
+            setEndDate(selectedDate.toISOString().split('T')[0]); // Format to YYYY-MM-DD
+        }
+    };
+
+    const clearFilters = () => {
+        setStartDate('');
+        setEndDate('');
+    }
+
+    return (
+        <View style={styles.container}>
+            <TouchableOpacity
+                style={styles.dateInput}
+                onPress={() => setShowStartPicker(true)}
+            >
+                <Text style={styles.dateText}>
+                    {startDate || 'Start date'}
+                </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={styles.dateInput}
+                onPress={() => setShowEndPicker(true)}
+            >
+                <Text style={styles.dateText}>
+                    {endDate || 'End date'}
+                </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={clearFilters}>
+                <Text style={styles.clearText}>Clear Filters</Text>
+            </TouchableOpacity>
+
+            {showStartPicker && (
+                <DateTimePicker
+                    value={startDate ? new Date(startDate) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                    onChange={handleStartChange}
+                />
+            )}
+            {showEndPicker && (
+                <DateTimePicker
+                    value={endDate ? new Date(endDate) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                    onChange={handleEndChange}
+                />
+            )}
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'row',
+        marginBottom: Spacing[4],
+    },
+    dateInput: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: Colors.border,
+        borderRadius: Radius.md,
+        marginRight: Spacing[2],
+        padding: Spacing[2],
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.gray[100],
+    },
+    dateText: {
+        color: Colors.placeholder,
+    },
+    clearText: {
+        color: Colors.primary,
+        fontWeight: '600',
+    },
+});
