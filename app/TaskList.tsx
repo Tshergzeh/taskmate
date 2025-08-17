@@ -18,6 +18,7 @@ type TaskListProps = {
     startDateFilter?: string;
     endDateFilter?: string;
     onRefreshTasks: () => Promise<void>;
+    searchQuery?: string;
 };
 
 export default function TaskList({ 
@@ -28,6 +29,7 @@ export default function TaskList({
     startDateFilter, 
     endDateFilter,
     onRefreshTasks,
+    searchQuery='',
 }: TaskListProps) {
     const [refreshing, setRefreshing] = useState(false);
 
@@ -48,6 +50,13 @@ export default function TaskList({
                 taskDueDate <= new Date(endDateFilter)
             );
         });
+    }
+
+    if (searchQuery) {
+        filteredTasks = filteredTasks.filter(task => 
+            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
     }
 
     const handleRefresh = async () => {
@@ -88,7 +97,7 @@ export default function TaskList({
     return (
         <FlatList
             data={filteredTasks}
-            keyExtractor={(item) => item?.id?.toString() ?? Math.random().toString()}
+            keyExtractor={(item) => String(item.id)}
             renderItem={({ item }) => (
                 <View style={styles.taskItem}>
                     <TouchableOpacity 
@@ -122,6 +131,7 @@ export default function TaskList({
             )}
             refreshing={refreshing}
             onRefresh={handleRefresh}
+            contentContainerStyle={{ flexGrow: 1}}
         />
     );
 }

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TaskList from './TaskList';
 import TaskInput from './TaskInput';
 import DateRangeFilter from './DateRangeFilter';
-import { Colors, Spacing } from '../theme';
+import { Colors, Radius, Spacing } from '../theme';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api';
 import { createTask, fetchTasks } from '../services/tasks';
@@ -18,6 +18,7 @@ export default function TasksScreen() {
     const [newTask, setNewTask] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
     const [due_date, setDueDate] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState('all');
     const [startDateFilter, setStartDateFilter] = useState('');
     const [endDateFilter, setEndDateFilter] = useState('');
@@ -125,15 +126,27 @@ export default function TasksScreen() {
             {loading ? (
                 <ActivityIndicator size="large" color={Colors.blue[600]} />
             ) : (
-                <TaskList
-                    tasks={tasks}
-                    onToggleTask={toggleTask}
-                    onDeleteTask={deleteTask}
-                    filter={filter}
-                    startDateFilter={startDateFilter}
-                    endDateFilter={endDateFilter}
-                    onRefreshTasks={async () => { await fetchTasks(); }}
-                />
+                <View style={{ flex: 1 }}>
+                    <TextInput
+                        style={styles.searchBar}
+                        placeholder='Search tasks...'
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
+                    <TaskList
+                        tasks={tasks}
+                        onToggleTask={toggleTask}
+                        onDeleteTask={deleteTask}
+                        filter={filter}
+                        startDateFilter={startDateFilter}
+                        endDateFilter={endDateFilter}
+                        onRefreshTasks={async () => { 
+                            const tasksResponse = await fetchTasks(); 
+                            setTasks(tasksResponse.tasks)
+                        }}
+                        searchQuery={searchQuery}
+                    />
+                </View>
             )}
         </View>
     );
@@ -185,11 +198,20 @@ export default function TasksScreen() {
         </Tab.Navigator>
     );
 }
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: Spacing[4],
         backgroundColor: Colors.gray[50],
+    },
+    searchBar: {
+        height: 40,
+        borderColor: Colors.gray[300],
+        borderWidth: 1,
+        borderRadius: Radius.md,
+        padding: Spacing[2],
+        paddingHorizontal: 10,
+        marginBottom: Spacing[3],
+        backgroundColor: Colors.gray[100],
     },
 });
