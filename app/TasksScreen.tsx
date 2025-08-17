@@ -1,65 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { JSX } from 'react';
 import { View, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TaskList from './TaskList';
-import TaskInput from './TaskInput';
 import DateRangeFilter from './DateRangeFilter';
 import { Colors, Radius, Spacing } from '../theme';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api';
-import { createTask, fetchTasks } from '../services/tasks';
+import { fetchTasks } from '../services/tasks';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../App';
 
 const Tab = createBottomTabNavigator();
 
 export default function TasksScreen() {
     const [tasks, setTasks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [newTask, setNewTask] = useState('');
-    const [newTaskDescription, setNewTaskDescription] = useState('');
-    const [due_date, setDueDate] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-    const [filter, setFilter] = useState('all');
     const [startDateFilter, setStartDateFilter] = useState('');
     const [endDateFilter, setEndDateFilter] = useState('');
 
-    useEffect(() => {
-        const loadTasks = async () => {
-            try {
-                const tasksResponse = await fetchTasks();
-                setTasks(tasksResponse.tasks);
-            } catch (error) {
-                console.error('Failed to load tasks:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadTasks();
-    }, []);
-
-    const addTask = async () => {
-        if (!newTask) return;
-        
-        try {
-            const taskToCreate = {
-                title: newTask,
-                description: newTaskDescription || undefined,
-                completed: false,
-                due_date: due_date || undefined,
+    useFocusEffect(
+        useCallback(() => {
+            const loadTasks = async () => {
+                try {
+                    const tasksResponse = await fetchTasks();
+                    setTasks(tasksResponse.tasks);
+                } catch (error) {
+                    console.error('Failed to load tasks:', error);
+                } finally {
+                    setLoading(false);
+                }
             };
-
-            const createdTask = await createTask(taskToCreate);
-            const savedTask = createdTask.data
-            
-            setTasks([savedTask, ...tasks]);
-
-            setNewTask('');
-            setNewTaskDescription('');
-            setDueDate('');
-        } catch (error) {
-            console.error('Failed to add task:', error);
-        }
-    };
+            loadTasks();
+        }, [])
+    );
 
     const toggleTask = async (id: string) => {
         try {
@@ -88,7 +64,7 @@ export default function TasksScreen() {
             console.error("Error marking task as completed:", error);
             
             setTasks(tasks.map(task =>
-                task.id === id ? { ...task, completed: !task.completed } : task
+                task.id === id ? { ...task, is_completed: !task.is_completed } : task
             ));
         }
     };
@@ -113,15 +89,6 @@ export default function TasksScreen() {
 
     const renderTab = (filter: string, extraUI?: JSX.Element) => (
         <View style={styles.container}>
-            <TaskInput
-                newTask={newTask}
-                setNewTask={setNewTask}
-                newTaskDescription={newTaskDescription}
-                setNewTaskDescription={setNewTaskDescription}
-                due_date={due_date}
-                setDueDate={setDueDate}
-                onAdd={addTask}
-            />
             {extraUI}
             {loading ? (
                 <ActivityIndicator size="large" color={Colors.blue[600]} />
@@ -153,7 +120,7 @@ export default function TasksScreen() {
 
     return (
         <Tab.Navigator
-            screenOptions={({ route }) => ({
+            screenOptions={({ route, navigation }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName: keyof typeof Ionicons.glyphMap = 'list-outline';
 
@@ -171,7 +138,15 @@ export default function TasksScreen() {
                 },
                 tabBarActiveTintColor: Colors.blue[600],
                 tabBarInactiveTintColor: Colors.gray[500],
-                headerShown: false,
+                headerRight: () => (
+                    <Ionicons
+                        name='add-circle'
+                        size={28}
+                        color={Colors.blue[600]}
+                        style={{ marginRight: 16 }}
+                        onPress={() => navigation.navigate('AddTask')}
+                    />
+                ),
             })}
         >
             <Tab.Screen name='All'>

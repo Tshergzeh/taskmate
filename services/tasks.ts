@@ -17,7 +17,7 @@ export interface Task {
 type CreateTaskInput = {
     title: string;
     description?: string;
-    completed: boolean;
+    is_completed: boolean;
     due_date?: string;
 };
 
