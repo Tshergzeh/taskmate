@@ -58,6 +58,7 @@ export default function LoginScreen({ navigation }: Props) {
           textContentType='password'
           value={password}
           onChangeText={setPassword}
+          onSubmitEditing={handleLogin}
         />
         <TouchableOpacity onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
