@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Colors, Spacing, Radius, FontSizes } from '../theme';
 import { login } from '../services/auth';
 import { saveToken } from '../services/storage';
@@ -14,6 +14,8 @@ export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const passwordRef = useRef<TextInput>(null);
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -49,8 +51,11 @@ export default function LoginScreen({ navigation }: Props) {
           textContentType='username'
           value={username}
           onChangeText={setUsername}
+          returnKeyType='next'
+          onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <TextInput 
+          ref={passwordRef}
           style={styles.input}
           placeholder='Password'
           placeholderTextColor={Colors.placeholder}
