@@ -8,9 +8,7 @@ import { Colors, Radius, Spacing } from '../theme';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api';
 import { fetchTasks } from '../services/tasks';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../App';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
