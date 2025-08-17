@@ -8,12 +8,12 @@ type TaskInputProps = {
     setNewTask: (task: string) => void;
     newTaskDescription: string;
     setNewTaskDescription: (description: string) => void;
-    dueDate: string;
+    due_date: string;
     setDueDate: (text: string) => void;
     onAdd: () => void;
 };
 
-export default function TaskInput({ newTask, setNewTask, newTaskDescription, setNewTaskDescription, dueDate, setDueDate, onAdd }: TaskInputProps) {
+export default function TaskInput({ newTask, setNewTask, newTaskDescription, setNewTaskDescription, due_date, setDueDate, onAdd }: TaskInputProps) {
     const [showDatePicker, setShowDatePicker] = React.useState(false);
 
     const handleDateChange = (_: any, selectedDate?: Date) => {
@@ -45,13 +45,13 @@ export default function TaskInput({ newTask, setNewTask, newTaskDescription, set
                 onPress={() => setShowDatePicker(true)}
             >
                 <Text style={styles.dateText}>
-                    {dueDate ? `Due: ${dueDate}` : 'Select due date'}
+                    {due_date ? `Due: ${due_date}` : 'Select due date'}
                 </Text>
             </TouchableOpacity>
 
             {showDatePicker && (
                 <DateTimePicker
-                    value={dueDate ? new Date(dueDate) : new Date()}
+                    value={due_date ? new Date(due_date) : new Date()}
                     mode='date'
                     display={Platform.OS === 'ios' ? 'inline' : 'default'}
                     onChange={handleDateChange}

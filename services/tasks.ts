@@ -18,7 +18,7 @@ type CreateTaskInput = {
     title: string;
     description?: string;
     completed: boolean;
-    dueDate?: string;
+    due_date?: string;
 };
 
 export async function fetchTasks(): Promise<Task> {

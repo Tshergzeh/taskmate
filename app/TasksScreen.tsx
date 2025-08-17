@@ -17,7 +17,7 @@ export default function TasksScreen() {
     const [loading, setLoading] = useState(true);
     const [newTask, setNewTask] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
-    const [dueDate, setDueDate] = useState('');
+    const [due_date, setDueDate] = useState('');
     const [filter, setFilter] = useState('all');
     const [startDateFilter, setStartDateFilter] = useState('');
     const [endDateFilter, setEndDateFilter] = useState('');
@@ -44,7 +44,7 @@ export default function TasksScreen() {
                 title: newTask,
                 description: newTaskDescription || undefined,
                 completed: false,
-                dueDate: dueDate || undefined,
+                due_date: due_date || undefined,
             };
 
             const createdTask = await createTask(taskToCreate);
@@ -77,7 +77,7 @@ export default function TasksScreen() {
                 setNewTask={setNewTask}
                 newTaskDescription={newTaskDescription}
                 setNewTaskDescription={setNewTaskDescription}
-                dueDate={dueDate}
+                due_date={due_date}
                 setDueDate={setDueDate}
                 onAdd={addTask}
             />

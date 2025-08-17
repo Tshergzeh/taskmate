@@ -7,7 +7,7 @@ type Task = {
     title: string;
     description?: string;
     is_completed: boolean;
-    dueDate?: string;
+    due_date?: string;
 };
 
 type TaskListProps = {
@@ -30,8 +30,8 @@ export default function TaskList({ tasks, onToggleTask, onDeleteTask, filter, st
     }
     if (filter === 'date-range' && startDateFilter && endDateFilter) {
         filteredTasks = tasks.filter(task => {
-            if (!task.dueDate) return false;
-            const taskDueDate = new Date(task.dueDate);
+            if (!task.due_date) return false;
+            const taskDueDate = new Date(task.due_date);
             return (
                 taskDueDate >= new Date(startDateFilter) &&
                 taskDueDate <= new Date(endDateFilter)
@@ -62,9 +62,9 @@ export default function TaskList({ tasks, onToggleTask, onDeleteTask, filter, st
                             </Text>
                         ) : null}
 
-                        {item.dueDate ? (
-                            <Text style={styles.dueDate}>
-                                Due: {new Date(item.dueDate).toLocaleDateString()}
+                        {item.due_date ? (
+                            <Text style={styles.due_date}>
+                                Due: {new Date(item.due_date).toLocaleDateString()}
                             </Text>
                         ) : null}
                     </TouchableOpacity>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         color: Colors.gray[600],
         marginTop: Spacing[1],
     },
-    dueDate: {
+    due_date: {
         fontSize: FontSizes.sm,
         color: Colors.blue[600],
         marginTop: Spacing[1],
