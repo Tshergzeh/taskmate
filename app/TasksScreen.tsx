@@ -60,10 +60,36 @@ export default function TasksScreen() {
         }
     };
 
-    const toggleTask = (id: string) => {
-        setTasks(tasks.map(task =>
-            task.id === id ? { ...task, completed: !task.completed } : task
-        ));
+    const toggleTask = async (id: string) => {
+        try {
+            setTasks(prevTasks =>
+                prevTasks.map(task =>
+                    task.id === id ? { ...task, is_completed: !task.is_completed } : task
+                )
+            );
+
+            const response = await api.patch(`/api/tasks/toggle/${id}`);
+
+            if (response.status !== 200) {
+                throw new Error('Failed to toggle task completion');
+            }
+
+            const data = await response.data;
+
+            setTasks(prevTasks =>
+                prevTasks.map(task =>
+                    task.id === data.id
+                    ? { ...task, is_completed: data.is_completed }
+                    : task
+                )
+            ); 
+        } catch (error) {
+            console.error("Error marking task as completed:", error);
+            
+            setTasks(tasks.map(task =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            ));
+        }
     };
 
     const deleteTask = (id: string) => {
