@@ -92,8 +92,22 @@ export default function TasksScreen() {
         }
     };
 
-    const deleteTask = (id: string) => {
-        setTasks(tasks.filter(task => task.id !== id));
+    const deleteTask = async (id: string) => {
+        try {
+            const response = await api.delete(`/api/tasks/${id}`);
+
+            if (!response.data.success) {
+                throw new Error('Failed to delete task');
+            }
+
+            const data = await response.data;
+
+            setTasks(prevTasks =>
+                prevTasks.filter(task => String(task.id) !== String(id))
+            );
+        } catch (error) {
+            console.error('Failed to delete task:', error);
+        }
     };
 
     const renderTab = (filter: string, extraUI?: JSX.Element) => (
