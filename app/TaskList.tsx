@@ -17,9 +17,20 @@ type TaskListProps = {
     filter: string;
     startDateFilter?: string;
     endDateFilter?: string;
+    onRefreshTasks: () => Promise<void>;
 };
 
-export default function TaskList({ tasks, onToggleTask, onDeleteTask, filter, startDateFilter, endDateFilter }: TaskListProps) {
+export default function TaskList({ 
+    tasks, 
+    onToggleTask, 
+    onDeleteTask, 
+    filter, 
+    startDateFilter, 
+    endDateFilter,
+    onRefreshTasks,
+}: TaskListProps) {
+    const [refreshing, setRefreshing] = useState(false);
+
     let filteredTasks = tasks;
 
     if (filter === 'completed') {
@@ -37,6 +48,12 @@ export default function TaskList({ tasks, onToggleTask, onDeleteTask, filter, st
                 taskDueDate <= new Date(endDateFilter)
             );
         });
+    }
+
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await onRefreshTasks();
+        setRefreshing(false);
     }
 
     return (
@@ -73,6 +90,8 @@ export default function TaskList({ tasks, onToggleTask, onDeleteTask, filter, st
                     </TouchableOpacity>
                 </View>
             )}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
         />
     );
 }

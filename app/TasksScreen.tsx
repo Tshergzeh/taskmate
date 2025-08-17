@@ -132,6 +132,7 @@ export default function TasksScreen() {
                     filter={filter}
                     startDateFilter={startDateFilter}
                     endDateFilter={endDateFilter}
+                    onRefreshTasks={async () => { await fetchTasks(); }}
                 />
             )}
         </View>
