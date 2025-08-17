@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, StyleSheet, Alert, Platform, ToastAndroid } from 'react-native';
 import { Colors, FontSizes, Radius, Spacing } from '../theme';
 
 type Task = {
@@ -56,6 +56,35 @@ export default function TaskList({
         setRefreshing(false);
     }
 
+    const confirmDelete = (task: Task) => {
+        Alert.alert(
+            "Delete Task",
+            `Are you sure you want to delete "${task.title}?"`,
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => {
+                        onDeleteTask(task.id);
+
+                        if (Platform.OS === 'android') {
+                            ToastAndroid.show(
+                                `Task "${task.title}" deleted.`,
+                                ToastAndroid.SHORT
+                            );
+                        } else {
+                            Alert.alert(
+                                "Deleted", 
+                                `"${task.title}" was deleted successfully.`
+                            );
+                        }
+                    }
+                }
+            ]
+        );
+    }
+
     return (
         <FlatList
             data={filteredTasks}
@@ -85,7 +114,8 @@ export default function TaskList({
                             </Text>
                         ) : null}
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => onDeleteTask(item.id)}>
+                    <TouchableOpacity 
+                        onPress={() => confirmDelete(item)}>
                         <Text style={styles.deleteButton}>Delete</Text>
                     </TouchableOpacity>
                 </View>
