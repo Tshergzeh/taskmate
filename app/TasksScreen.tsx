@@ -13,9 +13,10 @@ import { Picker } from '@react-native-picker/picker';
 import { useSnackbar } from '../context/SnackbarContext';
 
 const Tab = createBottomTabNavigator();
-const { showMessage } = useSnackbar();
 
 export default function TasksScreen() {
+    const { showMessage } = useSnackbar();
+
     const [tasks, setTasks] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
