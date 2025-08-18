@@ -2,6 +2,7 @@ import React from "react";
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors, Radius, Spacing } from '../theme';
+import { useSnackbar } from '../context/SnackbarContext';
 
 type DateRangeFilterProps = {
     startDate: string;
@@ -13,6 +14,7 @@ type DateRangeFilterProps = {
 export default function DateRangeFilter({ startDate, setStartDate, endDate, setEndDate }: DateRangeFilterProps) {
     const [showStartPicker, setShowStartPicker] = React.useState(false);
     const [showEndPicker, setShowEndPicker] = React.useState(false);
+    const { showMessage } = useSnackbar();
 
     const handleStartChange = (_: any, selectedDate?: Date) => {
         setShowStartPicker(false);
@@ -24,7 +26,12 @@ export default function DateRangeFilter({ startDate, setStartDate, endDate, setE
     const handleEndChange = (_: any, selectedDate?: Date) => {
         setShowEndPicker(false);
         if (selectedDate) {
-            setEndDate(selectedDate.toISOString().split('T')[0]); // Format to YYYY-MM-DD
+            const newEndDate = selectedDate.toISOString().split('T')[0];
+            if (startDate && new Date(newEndDate) < new Date(startDate)) {
+                showMessage('End date cannot be before start date', 'error');
+                return;
+            }
+            setEndDate(newEndDate);
         }
     };
 
@@ -35,24 +42,29 @@ export default function DateRangeFilter({ startDate, setStartDate, endDate, setE
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity
-                style={styles.dateInput}
-                onPress={() => setShowStartPicker(true)}
-            >
-                <Text style={styles.dateText}>
-                    {startDate || 'Start date'}
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.dateInput}
-                onPress={() => setShowEndPicker(true)}
-            >
-                <Text style={styles.dateText}>
-                    {endDate || 'End date'}
-                </Text>
-            </TouchableOpacity>
+            <View style={styles.datePickers}>
+                <TouchableOpacity
+                    style={styles.dateInput}
+                    onPress={() => setShowStartPicker(true)}
+                >
+                    <Text style={styles.dateText}>
+                        {startDate || 'Start date'}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.dateInput}
+                    onPress={() => setShowEndPicker(true)}
+                >
+                    <Text style={styles.dateText}>
+                        {endDate || 'End date'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity onPress={clearFilters}>
+            <TouchableOpacity 
+                style={styles.clearTextButton} 
+                onPress={clearFilters}
+            >
                 <Text style={styles.clearText}>Clear Filters</Text>
             </TouchableOpacity>
 
@@ -78,8 +90,11 @@ export default function DateRangeFilter({ startDate, setStartDate, endDate, setE
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
         marginBottom: Spacing[4],
+    },
+    datePickers: {
+        flexDirection: 'row',
+        marginBottom: Spacing[2],
     },
     dateInput: {
         flex: 1,
@@ -95,8 +110,15 @@ const styles = StyleSheet.create({
     dateText: {
         color: Colors.placeholder,
     },
+    clearTextButton: {
+        backgroundColor: Colors.primary,
+        paddingHorizontal: Spacing[4],
+        borderRadius: Radius.md,
+        alignItems: 'center',
+        padding: Spacing[2],
+    },
     clearText: {
-        color: Colors.primary,
+        color: Colors.buttonText,
         fontWeight: '600',
     },
 });
