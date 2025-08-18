@@ -32,6 +32,11 @@ export async function fetchTasks(): Promise<Task> {
 };
 
 export async function createTask(task: CreateTaskInput) {
-    const response = await api.post('/api/tasks', task);
-    return response.data;
+    try {
+        const response = await api.post('/api/tasks', task);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to create task:', error);
+        throw new Error('Failed to create task. Please try again.');
+    }
 }
