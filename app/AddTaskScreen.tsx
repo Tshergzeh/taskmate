@@ -5,6 +5,7 @@ import { createTask } from '../services/tasks';
 import { Colors, Spacing } from '../theme'
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import { useSnackbar } from '../context/SnackbarContext'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddTask'>;
 
@@ -12,13 +13,17 @@ export default function AddTaskScreen({ navigation }: Props) {
     const [newTask, setNewTask] = useState('');
     const [newTaskDescription, setNewTaskDescription] = useState('');
     const [due_date, setDueDate] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const { showMessage } = useSnackbar();
 
     const handleAddTask = async () => {
-        if (!newTask) {
-            Alert.alert('Validation', 'Please enter a task title.');
+        if (!newTask.trim()) {
+            showMessage('Please enter a task title.', 'error');
             return;
         }
 
+        setLoading(true);
         try {
             await createTask({
                 title: newTask,
@@ -26,10 +31,13 @@ export default function AddTaskScreen({ navigation }: Props) {
                 is_completed: false,
                 due_date: due_date || undefined,
             });
+            showMessage('Task added successfully!', 'success');
             navigation.goBack();
-        } catch (error) {
-            Alert.alert('Error', 'Failed to add task.');
-            console.error(error);
+        } catch (error: any) {
+            console.error('AddTask error:', error);
+            showMessage(error.message || 'Failed to add task.', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
