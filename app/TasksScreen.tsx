@@ -9,9 +9,11 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../api';
 import { fetchTasks } from '../services/tasks';
 import { useFocusEffect } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker'
+import { Picker } from '@react-native-picker/picker';
+import { useSnackbar } from '../context/SnackbarContext';
 
 const Tab = createBottomTabNavigator();
+const { showMessage } = useSnackbar();
 
 export default function TasksScreen() {
     const [tasks, setTasks] = useState<any[]>([]);
@@ -29,6 +31,10 @@ export default function TasksScreen() {
                     setTasks(tasksResponse.tasks);
                 } catch (error) {
                     console.error('Failed to load tasks:', error);
+                    showMessage(
+                        'Failed to load tasks. Please try again', 
+                        'error'
+                    );
                 } finally {
                     setLoading(false);
                 }
@@ -82,6 +88,8 @@ export default function TasksScreen() {
             setTasks(tasks.map(task =>
                 task.id === id ? { ...task, is_completed: !task.is_completed } : task
             ));
+
+            showMessage('Failed to update task status', 'error');
         }
     };
 
@@ -100,6 +108,7 @@ export default function TasksScreen() {
             );
         } catch (error) {
             console.error('Failed to delete task:', error);
+            showMessage('Failed to delete task.', 'error');
         }
     };
 
@@ -134,8 +143,13 @@ export default function TasksScreen() {
                         startDateFilter={startDateFilter}
                         endDateFilter={endDateFilter}
                         onRefreshTasks={async () => { 
-                            const tasksResponse = await fetchTasks(); 
-                            setTasks(tasksResponse.tasks)
+                            try {
+                                const tasksResponse = await fetchTasks(); 
+                                setTasks(tasksResponse.tasks);
+                            } catch (error) {
+                                console.error('Failed to refresh tasks', error);
+                                showMessage('Failed to refresh tasks', 'error');
+                            }
                         }}
                         searchQuery={searchQuery}
                     />
