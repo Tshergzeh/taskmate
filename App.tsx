@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { SnackbarProvider } from './context/SnackbarContext';
 
 import LoginScreen from './app/Login';
 import TasksScreen from './app/TasksScreen';
@@ -49,25 +51,29 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
     return (
         <AppErrorBoundary>
-            <NavigationContainer>
-                <Stack.Navigator initialRouteName="Login">
-                    <Stack.Screen 
-                        name="Login" 
-                        component={LoginScreen} 
-                        options={{ title: 'Login' }}
-                    />
-                    <Stack.Screen 
-                        name="Tasks" 
-                        component={TasksScreen}
-                        options={{ title: 'Tasks' }}
-                    />
-                    <Stack.Screen
-                        name='AddTask'
-                        component={AddTaskScreen}
-                        options={{ title: 'Add Task' }}
-                    />
-                </Stack.Navigator>
-            </NavigationContainer>
+            <PaperProvider>
+                <SnackbarProvider>
+                    <NavigationContainer>
+                        <Stack.Navigator initialRouteName="Login">
+                            <Stack.Screen 
+                                name="Login" 
+                                component={LoginScreen} 
+                                options={{ title: 'Login' }}
+                            />
+                            <Stack.Screen 
+                                name="Tasks" 
+                                component={TasksScreen}
+                                options={{ title: 'Tasks' }}
+                            />
+                            <Stack.Screen
+                                name='AddTask'
+                                component={AddTaskScreen}
+                                options={{ title: 'Add Task' }}
+                            />
+                        </Stack.Navigator>
+                    </NavigationContainer>
+                </SnackbarProvider>
+            </PaperProvider>
         </AppErrorBoundary>
     );
 }
