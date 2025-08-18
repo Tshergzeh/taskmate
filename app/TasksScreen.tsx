@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../api';
 import { fetchTasks } from '../services/tasks';
 import { useFocusEffect } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker'
 
 const Tab = createBottomTabNavigator();
 
@@ -18,6 +19,7 @@ export default function TasksScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [startDateFilter, setStartDateFilter] = useState('');
     const [endDateFilter, setEndDateFilter] = useState('');
+    const [sortOption, setSortOption] = useState<'newest' | 'oldest' | 'due-asc' | 'due-desc'>('newest');
 
     useFocusEffect(
         useCallback(() => {
@@ -34,6 +36,22 @@ export default function TasksScreen() {
             loadTasks();
         }, [])
     );
+
+    const getSortedTasks = () => {
+        return [...tasks].sort((a, b) => {
+            switch (sortOption) {
+                case 'oldest':
+                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                case 'due-asc':
+                    return (a.due_date ? new Date(a.due_date).getTime(): Infinity) - (b.due_date ? new Date(b.due_date).getTime(): Infinity);
+                case 'due-desc':
+                    return (b.due_date ? new Date(b.due_date).getTime(): -Infinity) - (a.due_date ? new Date(a.due_date).getTime(): -Infinity);
+                case 'newest':
+                default:
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            }
+        });
+    };
 
     const toggleTask = async (id: string) => {
         try {
@@ -98,8 +116,18 @@ export default function TasksScreen() {
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
+                    <Picker
+                        selectedValue={sortOption}
+                        onValueChange={(value) => setSortOption(value)}
+                        style={styles.sortPicker}
+                    >
+                        <Picker.Item label='Newest first' value='newest' />
+                        <Picker.Item label='Oldest first' value='oldest' />
+                        <Picker.Item label='Due date ↑' value='due-asc' />
+                        <Picker.Item label='Due date ↓' value='due-desc' />
+                    </Picker>
                     <TaskList
-                        tasks={tasks}
+                        tasks={getSortedTasks()}
                         onToggleTask={toggleTask}
                         onDeleteTask={deleteTask}
                         filter={filter}
@@ -186,5 +214,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: Spacing[3],
         backgroundColor: Colors.gray[100],
+    },
+    sortPicker: {
+        marginBottom: Spacing[3],
+        backgroundColor: Colors.gray[100],
+        borderRadius: Radius.md,
     },
 });
