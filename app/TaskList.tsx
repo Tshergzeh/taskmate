@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet, Alert, Platform, ToastAndroid } from 'react-native';
 import { Colors, FontSizes, Radius, Spacing } from '../theme';
+import { useSnackbar } from '../context/SnackbarContext';
 
 type Task = {
     id: string;
@@ -32,6 +33,7 @@ export default function TaskList({
     searchQuery='',
 }: TaskListProps) {
     const [refreshing, setRefreshing] = useState(false);
+    const { showMessage } = useSnackbar();
 
     let filteredTasks = tasks;
 
@@ -61,8 +63,13 @@ export default function TaskList({
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await onRefreshTasks();
-        setRefreshing(false);
+        try {
+            await onRefreshTasks();
+        } catch (error: any) {
+            showMessage('Failed to refresh tasks', 'error');
+        } finally {
+            setRefreshing(false);
+        }
     }
 
     const confirmDelete = (task: Task) => {
@@ -74,18 +81,17 @@ export default function TaskList({
                 {
                     text: "Delete",
                     style: "destructive",
-                    onPress: () => {
-                        onDeleteTask(task.id);
-
-                        if (Platform.OS === 'android') {
-                            ToastAndroid.show(
+                    onPress: async () => {
+                        try {
+                            onDeleteTask(task.id);
+                            showMessage(
                                 `Task "${task.title}" deleted.`,
-                                ToastAndroid.SHORT
+                                'success'
                             );
-                        } else {
-                            Alert.alert(
-                                "Deleted", 
-                                `"${task.title}" was deleted successfully.`
+                        } catch (error) {
+                            showMessage(
+                                `Failed to delete "${task.title}".`,
+                                'error'
                             );
                         }
                     }
