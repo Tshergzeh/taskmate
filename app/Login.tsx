@@ -7,6 +7,7 @@ import { Colors, Spacing, Radius, FontSizes } from '../theme';
 import { login } from '../services/auth';
 import { saveToken } from '../services/storage';
 import api from '../api';
+import { useSnackbar } from '../context/SnackbarContext'
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -15,11 +16,13 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const { showMessage } = useSnackbar();
+
   const passwordRef = useRef<TextInput>(null);
 
   const handleLogin = async () => {
-    if (!username || !password) {
-      alert('Please enter both username and password');
+    if (!username.trim() || !password.trim()) {
+      showMessage('Please enter both username and password', 'error');
       return;
     }
     
@@ -29,9 +32,11 @@ export default function LoginScreen({ navigation }: Props) {
       await saveToken(response.access_token);
       api.defaults.headers.common['Authorization'] = `Bearer ${response.access_token}`;
       navigation.replace('Tasks');
-    } catch (error) {
+    } catch (error: any) {
+      const message = error?.response?.data?.message
       console.error('Login failed:', error);
-      alert('Login failed. Invalid credentials.');
+      showMessage('Login failed. Invalid credentials.', 'error');
+      setPassword('');
     } finally {
       setLoading(false);
     }
@@ -65,8 +70,14 @@ export default function LoginScreen({ navigation }: Props) {
           onChangeText={setPassword}
           onSubmitEditing={handleLogin}
         />
-        <TouchableOpacity onPress={handleLogin} style={styles.button}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity 
+          onPress={handleLogin} 
+          style={[styles.button, loading && { opacity: 0.6 }]}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Logging in... ' : 'Login'}
+          </Text>
         </TouchableOpacity>
         <StatusBar style="auto" />
       </View>
