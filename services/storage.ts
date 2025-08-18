@@ -3,7 +3,12 @@ import * as SecureStore from 'expo-secure-store';
 const TOKEN_KEY = 'userToken';
 
 export async function saveToken(token: string) {
-    await SecureStore.setItemAsync(TOKEN_KEY, token);
+    try {
+        await SecureStore.setItemAsync(TOKEN_KEY, token);
+    } catch (error) {
+        console.error('Failed to save token:', error);
+        throw new Error('Failed to save token. Please try again.')
+    }
 }
 
 export async function getToken(): Promise<string | null> {
@@ -11,5 +16,10 @@ export async function getToken(): Promise<string | null> {
 }
 
 export async function deleteToken() {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    try {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+    } catch (error) {
+        console.error('Failed to delete token:', error);
+        throw new Error('Failed to delete token.');
+    }
 }
