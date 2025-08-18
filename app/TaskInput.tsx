@@ -58,7 +58,14 @@ export default function TaskInput({ newTask, setNewTask, newTaskDescription, set
                 />
             )}
 
-            <TouchableOpacity onPress={onAdd} style={styles.addTaskButton}>
+            <TouchableOpacity 
+                onPress={onAdd} 
+                style={[
+                    styles.addTaskButton, 
+                    !newTask.trim() && {opacity: 0.6}
+                ]}
+                disabled={!newTask.trim()}
+            >
                 <Text style={styles.buttonText}>Add</Text>
             </TouchableOpacity>
         </View>
